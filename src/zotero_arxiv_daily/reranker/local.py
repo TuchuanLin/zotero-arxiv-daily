@@ -19,22 +19,22 @@ class LocalReranker(BaseReranker):
             logging.getLogger("huggingface_hub.utils._http").setLevel(logging.ERROR)
             warnings.filterwarnings("ignore", category=FutureWarning)
 
-            # 从配置中提取 encode_kwargs，避免重复参数
-            if self.config.reranker.local.encode_kwargs:
-                encode_kwargs = dict(self.config.reranker.local.encode_kwargs)
-            else:
-                encode_kwargs = {}
-            
-            # 从 encode_kwargs 中移除 trust_remote_code，避免重复
-            encode_kwargs.pop('trust_remote_code', None)
-            
-            # 创建编码器时显式设置 trust_remote_code
-            encoder = SentenceTransformer(
-                self.config.reranker.local.model, 
-                trust_remote_code=True
-            )
-            
-            s1_feature = encoder.encode(s1, **encode_kwargs, show_progress_bar=True)
-            s2_feature = encoder.encode(s2, **encode_kwargs, show_progress_bar=True)
+        # 从配置中提取 encode_kwargs，避免重复参数
+        if self.config.reranker.local.encode_kwargs:
+            encode_kwargs = dict(self.config.reranker.local.encode_kwargs)
+        else:
+            encode_kwargs = {}
+        
+        # 从 encode_kwargs 中移除 trust_remote_code，避免重复
+        encode_kwargs.pop('trust_remote_code', None)
+        
+        # 创建编码器时显式设置 trust_remote_code
+        encoder = SentenceTransformer(
+            self.config.reranker.local.model, 
+            trust_remote_code=True
+        )
+        
+        s1_feature = encoder.encode(s1, **encode_kwargs, show_progress_bar=True)
+        s2_feature = encoder.encode(s2, **encode_kwargs, show_progress_bar=True)
         sim = encoder.similarity(s1_feature, s2_feature)
         return sim.numpy()
